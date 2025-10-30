@@ -27,7 +27,27 @@ src/
      ├── Serialization/        # Serializadores de NF-e
      ├── Services/             # Interfaces e serviços para comunicação com a SEFAZ
      └── HiperNFe.cs           # Super classe que concentra as operações de NF-e
+ └── HiperNFe.TestApp/         # Aplicativo Windows Forms para testes manuais da biblioteca
 ```
+
+## Aplicativo de Testes Windows Forms
+
+O diretório `src/HiperNFe.TestApp` contém um pequeno aplicativo Windows Forms que facilita a experimentação com a biblioteca. Ele utiliza um serviço "fake" em memória para simular respostas da SEFAZ e permite:
+
+- Registrar documentos de teste e acompanhar a fila de emissão;
+- Executar operações de emissão, cancelamento e consulta de status;
+- Visualizar o DANFE gerado pelo `SimpleDanfePrinter` e baixar o XML simulado;
+- Enviar e-mails de demonstração utilizando um serviço SMTP em memória.
+
+Para executar o projeto é necessário utilizar o SDK do .NET em um ambiente Windows:
+
+```bash
+cd src/HiperNFe.TestApp
+dotnet build
+dotnet run
+```
+
+O aplicativo é destinado apenas para fins de demonstração e não realiza comunicação real com a SEFAZ.
 
 ## Como Utilizar
 
