@@ -4,3 +4,5 @@
 
 /.vs
 /src/HiperNFe/obj
+/src/HiperNFe/.vs/HiperNFe
+/src/HiperNFe.TestApp/obj
