@@ -72,11 +72,12 @@ public class SoapSefazClient : ISefazClient, IDisposable
 
         using var response = await _httpClient.PostAsync(_config.ServiceUrl, content, cancellationToken).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
-        return await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+        return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
     }
 
     private static string BuildEventEnvelope(string accessKey, string description, string eventCode, string cnpj, SefazEnvironment environment)
     {
+        var stateCode = GetStateCodeFromAccessKey(accessKey);
         var escapedDescription = System.Security.SecurityElement.Escape(description);
         var detEvento = eventCode switch
         {
@@ -89,7 +90,17 @@ public class SoapSefazClient : ISefazClient, IDisposable
             _ => $"<detEvento versao='1.00'><descEvento>{eventCode}</descEvento><xCorrecao>{escapedDescription}</xCorrecao></detEvento>"
         };
 
-        return $"<envEvento versao='1.00'><evento versao='1.00'><infEvento Id='ID{eventCode}{accessKey}01'><cOrgao>91</cOrgao><tpAmb>{(int)environment}</tpAmb><CNPJ>{cnpj}</CNPJ><chNFe>{accessKey}</chNFe><dhEvento>{DateTime.UtcNow:yyyy-MM-ddTHH:mm:sszzz}</dhEvento><tpEvento>{eventCode}</tpEvento><nSeqEvento>1</nSeqEvento><verEvento>1.00</verEvento>{detEvento}</infEvento></evento></envEvento>";
+        return $"<envEvento versao='1.00'><evento versao='1.00'><infEvento Id='ID{eventCode}{accessKey}01'><cOrgao>{stateCode}</cOrgao><tpAmb>{(int)environment}</tpAmb><CNPJ>{cnpj}</CNPJ><chNFe>{accessKey}</chNFe><dhEvento>{DateTime.UtcNow:yyyy-MM-ddTHH:mm:sszzz}</dhEvento><tpEvento>{eventCode}</tpEvento><nSeqEvento>1</nSeqEvento><verEvento>1.00</verEvento>{detEvento}</infEvento></evento></envEvento>";
+    }
+
+    private static string GetStateCodeFromAccessKey(string accessKey)
+    {
+        if (string.IsNullOrWhiteSpace(accessKey) || accessKey.Length < 2)
+        {
+            throw new ArgumentException("A chave de acesso deve conter pelo menos 2 caracteres para extrair o código da UF.", nameof(accessKey));
+        }
+
+        return accessKey.Substring(0, 2);
     }
 
     private void EnsureEmitterCnpj()
